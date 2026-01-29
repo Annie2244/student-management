@@ -1,4 +1,3 @@
-// App.js
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 
@@ -6,17 +5,21 @@ import Landing from "./components/Landing";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+
 import StudentList from "./components/StudentList";
 import AddStudent from "./components/AddStudent"; 
 import EditStudent from "./components/EditStudent";
-import StudentDetail from "./components/StudentDetail";   // NEW
+import StudentDetail from "./components/StudentDetail";
 
 import LecturerList from "./components/LecturerList";
 import AddLecturer from "./components/AddLecturer";
 import EditLecturer from "./components/EditLecturer";
-import LecturerDetail from "./components/LecturerDetail"; // NEW
+import LecturerDetail from "./components/LecturerDetail";
 
-import ProtectedRoute from "./components/ProtectedRoute"; // NEW
+import AddCourse from "./components/AddCourse";
+import CourseList from "./components/CourseList";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   // Lecturers state
@@ -40,7 +43,7 @@ function App() {
   ]);
 
   // Students state
-  const [students, setStudents] = useState([
+  const [students, setStudents] = useState([ 
     { 
       id: 1, 
       name: "John Doe", 
@@ -60,7 +63,7 @@ function App() {
   ]);
 
   // Courses state
-  const [courses] = useState([
+  const [courses, setCourses] = useState([
     { id: "CS101", name: "Computer Science" },
     { id: "ST101", name: "Statistics" },
     { id: "BS101", name: "Business" },
@@ -172,6 +175,24 @@ function App() {
           element={
             <ProtectedRoute>
               <LecturerDetail lecturers={lecturers} />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Course routes */}
+        <Route 
+          path="/courses" 
+          element={
+            <ProtectedRoute>
+              <CourseList courses={courses} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/courses/add" 
+          element={
+            <ProtectedRoute>
+              <AddCourse courses={courses} setCourses={setCourses} />
             </ProtectedRoute>
           } 
         />

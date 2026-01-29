@@ -1,4 +1,3 @@
-// src/components/Dashboard.js
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -8,9 +7,7 @@ function Dashboard() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("username");
-    if (storedUser) {
-      setUsername(storedUser);
-    }
+    if (storedUser) setUsername(storedUser);
   }, []);
 
   const handleLogout = () => {
@@ -36,7 +33,7 @@ function Dashboard() {
         <h1 style={{ marginBottom: "10px" }}>
           Welcome {username ? username : "to Student Management"}
         </h1>
-        <p>Manage your students and lecturers efficiently and effortlessly.</p>
+        <p>Manage your students, lecturers, and courses efficiently.</p>
       </div>
 
       {/* Action Buttons */}
@@ -63,6 +60,15 @@ function Dashboard() {
 
         <Link to="/lecturers/add">
           <button style={buttonStyle("#e53e3e", "#c53030")}>Add Lecturer</button>
+        </Link>
+
+        {/* Courses buttons */}
+        <Link to="/courses">
+          <button style={buttonStyle("#319795", "#2c7a7b")}>View Courses</button>
+        </Link>
+
+        <Link to="/courses/add">
+          <button style={buttonStyle("#805ad5", "#6b46c1")}>Add Course</button>
         </Link>
       </div>
 
@@ -103,8 +109,6 @@ function buttonStyle(baseColor, hoverColor) {
     cursor: "pointer",
     boxShadow: "0 5px 10px rgba(0,0,0,0.2)",
     transition: "all 0.3s ease",
-    onMouseOver: (e) => (e.target.style.backgroundColor = hoverColor),
-    onMouseOut: (e) => (e.target.style.backgroundColor = baseColor),
   };
 }
 
