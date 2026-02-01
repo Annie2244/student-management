@@ -1,58 +1,41 @@
+// src/components/AddCourse.js
 import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function AddCourse({ courses, setCourses }) {
+function AddCourse() {
+  const [name, setName] = useState("");
+  const [creditUnits, setCreditUnits] = useState("");
   const navigate = useNavigate();
 
-  const [courseName, setCourseName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
-  const [creditUnits, setCreditUnits] = useState("");
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const newCourse = {
-      id: courseCode,
-      name: courseName,
-      creditUnits,
-    };
-
-    setCourses([...courses, newCourse]); // update state
-    navigate("/courses"); // redirect to list
+    try {
+      await axios.post("http://localhost:8080/api/courses", { name, creditUnits });
+      navigate("/courses");
+    } catch (error) {
+      console.error("Error adding course:", error);
+    }
   };
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Add Course</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px" }}
-      >
-        <input
-          type="text"
-          placeholder="Course Name"
-          value={courseName}
-          onChange={(e) => setCourseName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Course Code"
-          value={courseCode}
-          onChange={(e) => setCourseCode(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="Credit Units"
-          value={creditUnits}
-          onChange={(e) => setCreditUnits(e.target.value)}
-          required
-        />
-        <button type="submit">Add Course</button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Name:</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div>
+          <label>Credit Units:</label>
+          <input value={creditUnits} onChange={(e) => setCreditUnits(e.target.value)} required />
+        </div>
+        <button type="submit">Add</button>
       </form>
     </div>
   );
 }
 
 export default AddCourse;
+
+

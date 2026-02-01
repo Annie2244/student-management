@@ -1,141 +1,106 @@
 // src/components/LecturerList.js
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
-function LecturerList({ lecturers, setLecturers }) {
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this lecturer?")) {
-      setLecturers(lecturers.filter((lec) => lec.id !== id));
+function LecturerList() {
+  const [lecturers, setLecturers] = useState([]);
+
+  useEffect(() => {
+    fetchLecturers();
+  }, []);
+
+  const fetchLecturers = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/teachers");
+      setLecturers(response.data);
+    } catch (error) {
+      console.error("Error fetching lecturers:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/teachers/${id}`);
+      fetchLecturers();
+    } catch (error) {
+      console.error("Error deleting lecturer:", error);
     }
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "'Segoe UI', sans-serif" }}>
-      {/* Add Lecturer Button */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Link to="/lecturers/add">
-          <button
-            style={{
-              padding: "10px 20px",
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: "#38a169",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            + Add Lecturer
-          </button>
-        </Link>
-      </div>
+    <div style={{ padding: "20px" }}>
+      <h2>Lecturers</h2>
 
-      {/* Lecturer Table */}
-      <div
-        style={{
-          overflowX: "auto",
-          borderRadius: "12px",
-          boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
-        }}
-      >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ backgroundColor: "#667eea", color: "white" }}>
-            <tr>
-              <th style={{ padding: "12px" }}>ID</th>
-              <th style={{ padding: "12px" }}>Name</th>
-              <th style={{ padding: "12px" }}>Age</th>
-              <th style={{ padding: "12px" }}>Email</th>
-              <th style={{ padding: "12px" }}>Courses</th>
-              <th style={{ padding: "12px" }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lecturers.length === 0 ? (
-              <tr>
-                <td colSpan="6" style={{ padding: "20px", textAlign: "center" }}>
-                  No lecturers added yet.
-                </td>
-              </tr>
-            ) : (
-              lecturers.map((lec) => (
-                <tr
-                  key={lec.id}
-                  style={{ textAlign: "center", borderBottom: "1px solid #ddd" }}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#f1f1f1")
-                  }
-                  onMouseOut={(e) =>
-                    (e.currentTarget.style.backgroundColor = "white")
-                  }
-                >
-                  <td style={{ padding: "12px" }}>{lec.id}</td>
-                  <td style={{ padding: "12px" }}>{lec.name}</td>
-                  <td style={{ padding: "12px" }}>{lec.age}</td>
-                  <td style={{ padding: "12px" }}>{lec.email}</td>
-                  <td style={{ padding: "12px" }}>
-                    {lec.courses?.join(", ") || "-"}
-                  </td>
-                  <td
+      <Link to="/lecturers/add">
+        <button
+          style={{
+            backgroundColor: "green",
+            color: "white",
+            border: "none",
+            padding: "10px 15px",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginBottom: "20px",
+          }}
+        >
+          Add Lecturer
+        </button>
+      </Link>
+
+      <table border="1" cellPadding="10" style={{ marginTop: "20px", width: "100%" }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lecturers.map((lec) => (
+            <tr key={lec.id}>
+              <td>{lec.id}</td>
+              <td>{lec.name}</td>
+              <td>{lec.email}</td>
+              <td>{lec.course?.name || "-"}</td>
+              <td>
+                <Link to={`/lecturers/edit/${lec.id}`}>
+                  <button
                     style={{
-                      padding: "12px",
-                      display: "flex",
-                      justifyContent: "center",
-                      gap: "10px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "none",
+                      padding: "5px 10px",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                      alignItems:"center",
                     }}
                   >
-                    {/* NEW View Button */}
-                    <Link to={`/lecturers/${lec.id}`}>
-                      <button
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: "6px",
-                          border: "none",
-                          backgroundColor: "#3182ce", // blue for view
-                          color: "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        View
-                      </button>
-                    </Link>
-
-                    <Link to={`/lecturers/edit/${lec.id}`}>
-                      <button
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: "6px",
-                          border: "none",
-                          backgroundColor: "#764ba2",
-                          color: "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </Link>
-
-                    <button
-                      style={{
-                        padding: "6px 12px",
-                        borderRadius: "6px",
-                        border: "none",
-                        backgroundColor: "#e53e3e",
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleDelete(lec.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    Edit
+                  </button>
+                </Link>
+                <button
+                  onClick={() => handleDelete(lec.id)}
+                  style={{
+                    backgroundColor: "#f44336",
+                    color: "white",
+                    border: "none",
+                    padding: "5px 10px",
+                    borderRadius: "3px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
 export default LecturerList;
-
