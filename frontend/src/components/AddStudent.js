@@ -25,10 +25,7 @@ function AddStudent() {
     }
   };
 
-  // Handle checkbox changes
-  // Replaced by single select for now as per backend model
-  // const handleCourseChange = ...
-
+  
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
