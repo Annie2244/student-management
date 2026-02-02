@@ -1,24 +1,35 @@
 // src/components/Login.js
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { AuthService } from "../services/api";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (username.trim() && password.trim()) {
-      // Save authentication flag
-      localStorage.setItem("isAuthenticated", "true");
+      try {
+        const response = await AuthService.login({
+          username: username.trim(),
+          password: password.trim()
+        });
 
-      // Save username for personalized greeting
-      localStorage.setItem("username", username);
+        if (response.status === 200) {
+          // Save authentication flag and user info
+          localStorage.setItem("isAuthenticated", "true");
+          localStorage.setItem("username", response.data.username);
 
-      // Redirect to dashboard
-      navigate("/dashboard");
+          // Redirect to dashboard
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.error("Login failed", error);
+        alert("Invalid credentials");
+      }
     } else {
       alert("Please enter both username and password");
     }

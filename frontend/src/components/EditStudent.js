@@ -1,49 +1,54 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-function EditStudent({ students, setStudents }) {
+import { StudentService } from "../services/api";
+
+function EditStudent() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const student = students.find((s) => s.id === Number(id));
 
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
-  const [coursesInput, setCoursesInput] = useState("");
+  const [courseName, setCourseName] = useState(""); // Simplified for now
 
   useEffect(() => {
-    if (student) {
-      setName(student.name);
-      setAge(student.age);
-      setEmail(student.email);
-      setCoursesInput(student.courses.join(", "));
+    loadStudent();
+  }, [id]);
+
+  const loadStudent = async () => {
+    try {
+      const response = await StudentService.get(id);
+      const s = response.data;
+      setName(s.name);
+      setAge(s.age);
+      setEmail(s.email);
+      setCourseName(s.courseName || "");
+    } catch (error) {
+      console.error("Error loading student", error);
     }
-  }, [student]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const updatedStudents = students.map((s) =>
-      s.id === student.id
-        ? {
-            ...s,
-            name,
-            age: Number(age),
-            email,
-            courses: coursesInput
-              .split(",")
-              .map((c) => c.trim())
-              .filter(Boolean),
-          }
-        : s
-    );
-
-    setStudents(updatedStudents);
-    navigate("/students");
   };
 
-  if (!student) return <p>Student not found</p>;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const studentData = {
+      name,
+      age: Number(age),
+      email,
+      // Course update handling is complex without course ID, skipping for now or treating as read-only
+    };
+
+    try {
+      await StudentService.update(id, studentData);
+      navigate("/students");
+    } catch (error) {
+      console.error("Error updating student:", error);
+      alert("Failed to update");
+    }
+  };
+
+  if (!name) return <p>Loading...</p>;
 
   return (
     <div style={{ padding: "40px", maxWidth: "400px", margin: "auto" }}>
@@ -67,8 +72,9 @@ function EditStudent({ students, setStudents }) {
           required
         />
         <input
-          value={coursesInput}
-          onChange={(e) => setCoursesInput(e.target.value)}
+          value={courseName}
+          disabled
+          placeholder="Course cannot be changed here yet"
         />
 
         <button type="submit">Save Changes</button>

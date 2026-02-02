@@ -1,31 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { TeacherService, CourseService } from "../services/api";
 
-function AddLecturer({ coursesList }) {
+function AddLecturer() {
   const navigate = useNavigate();
 
   // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const loadCourses = async () => {
+    try {
+      const response = await CourseService.getAll();
+      setCourses(response.data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !selectedCourse) {
+    if (!name || !email) {
       alert("Please fill in all fields");
       return;
     }
 
     try {
       // Send POST request to backend
-      await axios.post("http://localhost:8080/api/teachers", {
+      const teacherData = {
         name,
         email,
-        course: { name: selectedCourse },
-      });
+        courses: selectedCourseId ? [{ id: Number(selectedCourseId) }] : [],
+      };
+
+      await TeacherService.create(teacherData);
 
       alert("Lecturer added successfully!");
       // Navigate back to lecturer list
@@ -60,13 +76,13 @@ function AddLecturer({ coursesList }) {
 
         <label style={{ marginBottom: "5px" }}>Course:</label>
         <select
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
+          value={selectedCourseId}
+          onChange={(e) => setSelectedCourseId(e.target.value)}
           style={{ marginBottom: "20px", padding: "8px" }}
         >
           <option value="">Select a course</option>
-          {coursesList.map((course) => (
-            <option key={course.id} value={course.name}>
+          {courses.map((course) => (
+            <option key={course.id} value={course.id}>
               {course.name}
             </option>
           ))}

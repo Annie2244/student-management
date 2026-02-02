@@ -1,27 +1,36 @@
-import { useState } from "react";
+import { StudentService, CourseService } from "../services/api";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-function AddStudent({ students, setStudents, coursesList }) {
+function AddStudent() {
   const navigate = useNavigate();
 
   // Form state
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [email, setEmail] = useState("");
-  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [courses, setCourses] = useState([]);
 
-  // Handle checkbox changes
-  const handleCourseChange = (e) => {
-    const courseId = e.target.value;
-    if (e.target.checked) {
-      setSelectedCourses([...selectedCourses, courseId]); // Add
-    } else {
-      setSelectedCourses(selectedCourses.filter((id) => id !== courseId)); // Remove
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const loadCourses = async () => {
+    try {
+      const response = await CourseService.getAll();
+      setCourses(response.data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
     }
   };
 
+  // Handle checkbox changes
+  // Replaced by single select for now as per backend model
+  // const handleCourseChange = ...
+
   // Submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!name || !age || !email) {
@@ -29,19 +38,20 @@ function AddStudent({ students, setStudents, coursesList }) {
       return;
     }
 
-    const newStudent = {
-      id: students.length > 0 ? students[students.length - 1].id + 1 : 1,
+    const studentData = {
       name,
       age: Number(age),
       email,
-      courses: selectedCourses.map(
-        (cid) => coursesList.find((c) => c.id === cid)?.name || cid
-      ),
-      courseID: selectedCourses,
+      course: selectedCourseId ? { id: Number(selectedCourseId) } : null
     };
 
-    setStudents([...students, newStudent]);
-    navigate("/students"); // go back to student list
+    try {
+      await StudentService.create(studentData);
+      navigate("/students");
+    } catch (error) {
+      console.error("Error creating student:", error);
+      alert("Failed to create student");
+    }
   };
 
   return (
@@ -80,18 +90,19 @@ function AddStudent({ students, setStudents, coursesList }) {
         </div>
 
         <div style={{ marginBottom: "15px" }}>
-          <label>Courses:</label>
-          {coursesList.map((course) => (
-            <label key={course.id} style={{ display: "block", marginBottom: "5px" }}>
-              <input
-                type="checkbox"
-                value={course.id}
-                checked={selectedCourses.includes(course.id)}
-                onChange={handleCourseChange}
-              />{" "}
-              {course.name} ({course.id})
-            </label>
-          ))}
+          <label>Course:</label>
+          <select
+            value={selectedCourseId}
+            onChange={(e) => setSelectedCourseId(e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
+          >
+            <option value="">Select a Course</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <button

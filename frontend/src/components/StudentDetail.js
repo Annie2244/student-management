@@ -1,9 +1,25 @@
- // src/components/StudentDetail.js
+// src/components/StudentDetail.js
 import { useParams, Link } from "react-router-dom";
 
-function StudentDetail({ students }) {
+import { StudentService } from "../services/api";
+import { useEffect, useState } from "react";
+
+function StudentDetail() {
   const { id } = useParams();
-  const student = students.find((s) => s.id === Number(id));
+  const [student, setStudent] = useState(null);
+
+  useEffect(() => {
+    loadStudent();
+  }, [id]);
+
+  const loadStudent = async () => {
+    try {
+      const response = await StudentService.get(id);
+      setStudent(response.data);
+    } catch (error) {
+      console.error("Error fetching student:", error);
+    }
+  };
 
   if (!student) {
     return (
@@ -33,11 +49,11 @@ function StudentDetail({ students }) {
           boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
         }}
       >
-        <p><strong>ID:</strong> {student.id}</p>
+        <p><strong>ID:</strong> {student.studentId}</p>
         <p><strong>Name:</strong> {student.name}</p>
         <p><strong>Email:</strong> {student.email}</p>
         <p><strong>Age:</strong> {student.age}</p>
-        <p><strong>Courses:</strong> {student.courses?.join(", ") || "-"}</p>
+        <p><strong>Course:</strong> {student.courseName || "-"}</p>
 
         <Link to="/students">
           <button

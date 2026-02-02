@@ -1,9 +1,22 @@
-// src/components/LecturerDetail.js
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { TeacherService } from "../services/api";
 
-function LecturerDetail({ lecturers }) {
+function LecturerDetail() {
   const { id } = useParams();
-  const lecturer = lecturers.find((l) => l.id === Number(id));
+  const [lecturer, setLecturer] = useState(null);
+
+  useEffect(() => {
+    const loadLecturer = async () => {
+      try {
+        const response = await TeacherService.get(id);
+        setLecturer(response.data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadLecturer();
+  }, [id]);
 
   if (!lecturer) {
     return (
@@ -37,7 +50,7 @@ function LecturerDetail({ lecturers }) {
         <p><strong>Name:</strong> {lecturer.name}</p>
         <p><strong>Email:</strong> {lecturer.email}</p>
         <p><strong>Age:</strong> {lecturer.age}</p>
-        <p><strong>Courses:</strong> {lecturer.courses?.join(", ") || "-"}</p>
+        <p><strong>Courses:</strong> {lecturer.courses ? lecturer.courses.map(c => c.name).join(", ") : "-"}</p>
 
         <Link to="/lecturers">
           <button

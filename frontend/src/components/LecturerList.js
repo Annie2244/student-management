@@ -1,6 +1,5 @@
-// src/components/LecturerList.js
+import { TeacherService } from "../services/api";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 
 function LecturerList() {
@@ -12,7 +11,7 @@ function LecturerList() {
 
   const fetchLecturers = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/teachers");
+      const response = await TeacherService.getAll();
       setLecturers(response.data);
     } catch (error) {
       console.error("Error fetching lecturers:", error);
@@ -21,7 +20,7 @@ function LecturerList() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/teachers/${id}`);
+      await TeacherService.delete(id);
       fetchLecturers();
     } catch (error) {
       console.error("Error deleting lecturer:", error);
@@ -64,7 +63,7 @@ function LecturerList() {
               <td>{lec.id}</td>
               <td>{lec.name}</td>
               <td>{lec.email}</td>
-              <td>{lec.course?.name || "-"}</td>
+              <td>{lec.courses ? lec.courses.map(c => c.name).join(", ") : "-"}</td>
               <td>
                 <Link to={`/lecturers/edit/${lec.id}`}>
                   <button
@@ -75,7 +74,7 @@ function LecturerList() {
                       padding: "5px 10px",
                       borderRadius: "3px",
                       cursor: "pointer",
-                      alignItems:"center",
+                      alignItems: "center",
                     }}
                   >
                     Edit

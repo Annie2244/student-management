@@ -1,14 +1,35 @@
-// src/components/StudentList.js
+import { StudentService } from "../services/api";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function StudentList({ students, setStudents }) {
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const loadStudents = async () => {
+    try {
+      const response = await StudentService.getAll();
+      setStudents(response.data);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+
   // Delete student function
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this student?"
     );
     if (confirmDelete) {
-      setStudents(students.filter((student) => student.id !== id));
+      try {
+        await StudentService.delete(id);
+        setStudents(students.filter((student) => student.studentId !== id));
+      } catch (error) {
+        console.error("Error deleting student:", error);
+        alert("Failed to delete student");
+      }
     }
   };
 
@@ -19,8 +40,7 @@ function StudentList({ students, setStudents }) {
       {/* Add Student Button */}
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
         <Link to="/students/add">
-          <button
-            style={{
+          <button style={{
               padding: "10px 20px",
               borderRadius: "8px",
               border: "none",
@@ -64,7 +84,7 @@ function StudentList({ students, setStudents }) {
             ) : (
               students.map((student) => (
                 <tr
-                  key={student.id}
+                  key={student.studentId}
                   style={{ textAlign: "center", borderBottom: "1px solid #ddd" }}
                   onMouseOver={(e) =>
                     (e.currentTarget.style.backgroundColor = "#f1f1f1")
@@ -73,12 +93,12 @@ function StudentList({ students, setStudents }) {
                     (e.currentTarget.style.backgroundColor = "white")
                   }
                 >
-                  <td style={{ padding: "12px" }}>{student.id}</td>
+                  <td style={{ padding: "12px" }}>{student.studentId}</td>
                   <td style={{ padding: "12px" }}>{student.name}</td>
                   <td style={{ padding: "12px" }}>{student.email}</td>
                   <td style={{ padding: "12px" }}>{student.age}</td>
                   <td style={{ padding: "12px" }}>
-                    {student.courses ? student.courses.join(", ") : "-"}
+                    {student.courseName || "-"}
                   </td>
                   <td
                     style={{
@@ -88,8 +108,8 @@ function StudentList({ students, setStudents }) {
                       gap: "10px",
                     }}
                   >
-                    {/* NEW View Button */}
-                    <Link to={`/students/${student.id}`}>
+
+                    <Link to={`/students/${student.studentId}`}>
                       <button
                         style={{
                           padding: "6px 12px",
@@ -104,7 +124,7 @@ function StudentList({ students, setStudents }) {
                       </button>
                     </Link>
 
-                    <Link to={`/students/edit/${student.id}`}>
+                    <Link to ={`/students/edit/${student.studentId}`}>
                       <button
                         style={{
                           padding: "6px 12px",
@@ -128,7 +148,7 @@ function StudentList({ students, setStudents }) {
                         color: "white",
                         cursor: "pointer",
                       }}
-                      onClick={() => handleDelete(student.id)}
+                      onClick={() => handleDelete(student.studentId)}
                     >
                       Delete
                     </button>

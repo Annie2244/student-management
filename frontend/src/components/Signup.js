@@ -1,6 +1,6 @@
-// Signup.js
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { AuthService } from "../services/api";
 
 function Signup() {
   const [username, setUsername] = useState("");
@@ -11,7 +11,7 @@ function Signup() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Frontend validation
@@ -24,8 +24,19 @@ function Signup() {
       return;
     }
 
-    // Frontend-only navigation to Dashboard
-    navigate("/dashboard");
+    // Backend registration
+    try {
+      await AuthService.register({
+        username: username.trim(),
+        email: email.trim(),
+        password: password.trim()
+      });
+      alert("Registration successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      setError("Registration failed. Username may be taken.");
+    }
   };
 
   return (
