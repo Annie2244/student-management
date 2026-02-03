@@ -3,19 +3,17 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function StudentList({ students, setStudents }) {
-
   useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const response = await StudentService.getAll();
+        setStudents(response.data);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
     loadStudents();
-  }, []);
-
-  const loadStudents = async () => {
-    try {
-      const response = await StudentService.getAll();
-      setStudents(response.data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
-  };
+  }, [setStudents]);
 
   // Delete student function
   const handleDelete = async (id) => {
@@ -40,7 +38,8 @@ function StudentList({ students, setStudents }) {
       {/* Add Student Button */}
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
         <Link to="/students/add">
-          <button style={{
+          <button
+            style={{
               padding: "10px 20px",
               borderRadius: "8px",
               border: "none",
@@ -108,7 +107,6 @@ function StudentList({ students, setStudents }) {
                       gap: "10px",
                     }}
                   >
-
                     <Link to={`/students/${student.studentId}`}>
                       <button
                         style={{
@@ -124,7 +122,7 @@ function StudentList({ students, setStudents }) {
                       </button>
                     </Link>
 
-                    <Link to ={`/students/edit/${student.studentId}`}>
+                    <Link to={`/students/edit/${student.studentId}`}>
                       <button
                         style={{
                           padding: "6px 12px",
@@ -164,3 +162,4 @@ function StudentList({ students, setStudents }) {
 }
 
 export default StudentList;
+

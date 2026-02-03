@@ -6,17 +6,16 @@ function LecturerList() {
   const [lecturers, setLecturers] = useState([]);
 
   useEffect(() => {
+    const fetchLecturers = async () => {
+      try {
+        const response = await TeacherService.getAll();
+        setLecturers(response.data);
+      } catch (error) {
+        console.error("Error fetching lecturers:", error);
+      }
+    };
     fetchLecturers();
   }, []);
-
-  const fetchLecturers = async () => {
-    try {
-      const response = await TeacherService.getAll();
-      setLecturers(response.data);
-    } catch (error) {
-      console.error("Error fetching lecturers:", error);
-    }
-  };
 
   const handleDelete = async (id) => {
     try {

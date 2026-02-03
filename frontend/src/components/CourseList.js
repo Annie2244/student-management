@@ -7,17 +7,16 @@ function CourseList() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/courses");
+        setCourses(response.data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
     fetchCourses();
   }, []);
-
-  const fetchCourses = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/api/courses");
-      setCourses(response.data);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  };
 
   const handleDelete = async (id) => {
     try {

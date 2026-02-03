@@ -10,18 +10,17 @@ function EditCourse() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/courses/${id}`);
+        setName(response.data.name);
+        setCreditUnits(response.data.creditUnits || "");
+      } catch (error) {
+        console.error("Error fetching course:", error);
+      }
+    };
     fetchCourse();
-  }, []);
-
-  const fetchCourse = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/courses/${id}`);
-      setName(response.data.name);
-      setCreditUnits(response.data.creditUnits || "");
-    } catch (error) {
-      console.error("Error fetching course:", error);
-    }
-  };
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

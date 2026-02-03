@@ -13,21 +13,20 @@ function EditStudent() {
   const [courseName, setCourseName] = useState(""); // Simplified for now
 
   useEffect(() => {
+    const loadStudent = async () => {
+      try {
+        const response = await StudentService.get(id);
+        const s = response.data;
+        setName(s.name);
+        setAge(s.age);
+        setEmail(s.email);
+        setCourseName(s.courseName || "");
+      } catch (error) {
+        console.error("Error loading student", error);
+      }
+    };
     loadStudent();
   }, [id]);
-
-  const loadStudent = async () => {
-    try {
-      const response = await StudentService.get(id);
-      const s = response.data;
-      setName(s.name);
-      setAge(s.age);
-      setEmail(s.email);
-      setCourseName(s.courseName || "");
-    } catch (error) {
-      console.error("Error loading student", error);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

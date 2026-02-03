@@ -9,17 +9,16 @@ function StudentDetail() {
   const [student, setStudent] = useState(null);
 
   useEffect(() => {
+    const loadStudent = async () => {
+      try {
+        const response = await StudentService.get(id);
+        setStudent(response.data);
+      } catch (error) {
+        console.error("Error fetching student:", error);
+      }
+    };
     loadStudent();
   }, [id]);
-
-  const loadStudent = async () => {
-    try {
-      const response = await StudentService.get(id);
-      setStudent(response.data);
-    } catch (error) {
-      console.error("Error fetching student:", error);
-    }
-  };
 
   if (!student) {
     return (
