@@ -12,17 +12,16 @@ function AddLecturer() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        const response = await CourseService.getAll();
+        setCourses(response.data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
     loadCourses();
   }, []);
-
-  const loadCourses = async () => {
-    try {
-      const response = await CourseService.getAll();
-      setCourses(response.data);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  };
 
   // Handle form submission
   const handleSubmit = async (e) => {

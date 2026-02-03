@@ -13,19 +13,18 @@ function AddStudent() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        const response = await CourseService.getAll();
+        setCourses(response.data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
     loadCourses();
   }, []);
 
-  const loadCourses = async () => {
-    try {
-      const response = await CourseService.getAll();
-      setCourses(response.data);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  };
 
-  
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
