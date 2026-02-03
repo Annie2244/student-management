@@ -1,21 +1,22 @@
 import { TeacherService } from "../services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 function LecturerList() {
   const [lecturers, setLecturers] = useState([]);
 
-  useEffect(() => {
-    const fetchLecturers = async () => {
-      try {
-        const response = await TeacherService.getAll();
-        setLecturers(response.data);
-      } catch (error) {
-        console.error("Error fetching lecturers:", error);
-      }
-    };
-    fetchLecturers();
+  const fetchLecturers = useCallback(async () => {
+    try {
+      const response = await TeacherService.getAll();
+      setLecturers(response.data);
+    } catch (error) {
+      console.error("Error fetching lecturers:", error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchLecturers();
+  }, [fetchLecturers]);
 
   const handleDelete = async (id) => {
     try {
