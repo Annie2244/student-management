@@ -1,4 +1,3 @@
-// src/components/Login.js
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AuthService } from "../services/api";
@@ -15,20 +14,31 @@ function Login() {
       try {
         const response = await AuthService.login({
           username: username.trim(),
-          password: password.trim()
+          password: password.trim(),
         });
 
         if (response.status === 200) {
           // Save authentication flag and user info
           localStorage.setItem("isAuthenticated", "true");
-          localStorage.setItem("username", response.data.username);
+          if (response.data.token) {
+            localStorage.setItem("token", response.data.token);
+          }
+          if (response.data.username) {
+            localStorage.setItem("username", response.data.username);
+          }
 
           // Redirect to dashboard
           navigate("/dashboard");
         }
       } catch (error) {
         console.error("Login failed", error);
-        alert("Invalid credentials");
+        if (error.response?.status === 401) {
+          alert("Invalid username or password.");
+        } else if (error.response?.status === 404) {
+          alert("User not found.");
+        } else {
+          alert(error.response?.data?.message || "Login failed. Please try again.");
+        }
       }
     } else {
       alert("Please enter both username and password");

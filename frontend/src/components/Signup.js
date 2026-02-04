@@ -8,8 +8,8 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,27 +24,31 @@ function Signup() {
       return;
     }
 
-    // Backend registration
     try {
       await AuthService.register({
         username: username.trim(),
         email: email.trim(),
-        password: password.trim()
+        password: password.trim(),
       });
+
       alert("Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setError("Registration failed. Username may be taken.");
+      if (err.response?.status === 409) {
+        setError("Username or email already exists.");
+      } else if (err.response?.status === 400) {
+        setError("Invalid input. Please check your details.");
+      } else {
+        setError(err.response?.data?.message || "Registration failed. Please try again.");
+      }
     }
   };
 
   return (
     <div className="container">
       <h2>Create Account</h2>
-
       <form className="vertical-form" onSubmit={handleSubmit}>
-        {/* Username */}
         <div className="form-group">
           <label>Username</label>
           <input
@@ -55,7 +59,6 @@ function Signup() {
           />
         </div>
 
-        {/* Email */}
         <div className="form-group">
           <label>Email</label>
           <input
@@ -66,7 +69,6 @@ function Signup() {
           />
         </div>
 
-        {/* Password */}
         <div className="form-group">
           <label>Password</label>
           <div style={{ position: "relative" }}>
@@ -93,7 +95,6 @@ function Signup() {
           </div>
         </div>
 
-        {/* Confirm Password */}
         <div className="form-group">
           <label>Confirm Password</label>
           <input
@@ -104,12 +105,9 @@ function Signup() {
           />
         </div>
 
-        {/* Error message */}
         {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
 
-        <button type="submit" className="submit-btn">
-          Sign Up
-        </button>
+        <button type="submit" className="submit-btn">Sign Up</button>
       </form>
 
       <p className="form-footer">
