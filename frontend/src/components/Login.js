@@ -10,12 +10,18 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Debug: log what’s being submitted
+    console.log("Submitting login with:", { username, password });
+
     if (username.trim() && password.trim()) {
       try {
         const response = await AuthService.login({
           username: username.trim(),
           password: password.trim(),
         });
+
+        // Debug: log the full API response
+        console.log("API response:", response);
 
         if (response.status === 200) {
           // Save authentication flag and user info
@@ -27,11 +33,16 @@ function Login() {
             localStorage.setItem("username", response.data.username);
           }
 
+          // Debug: confirm successful login
+          console.log("Login successful, redirecting to dashboard...");
+
           // Redirect to dashboard
           navigate("/dashboard");
         }
       } catch (error) {
-        console.error("Login failed", error);
+        // Debug: log backend error message
+        console.error("Login failed:", error.response?.data || error.message);
+
         if (error.response?.status === 401) {
           alert("Invalid username or password.");
         } else if (error.response?.status === 404) {

@@ -1,6 +1,4 @@
-// src/components/AddCourse.js
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function AddCourse() {
@@ -8,34 +6,68 @@ function AddCourse() {
   const [creditUnits, setCreditUnits] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await axios.post("http://localhost:8080/api/courses", { name, creditUnits });
-      navigate("/courses");
-    } catch (error) {
-      console.error("Error adding course:", error);
-    }
+
+    // create new course object
+    const newCourse = {
+      id: Date.now(),
+      name: name,
+      creditUnits: creditUnits
+    };
+
+    // get existing courses from localStorage
+    const existingCourses =
+      JSON.parse(localStorage.getItem("courses")) || [];
+
+    // add new course
+    existingCourses.push(newCourse);
+
+    // save back to localStorage
+    localStorage.setItem("courses", JSON.stringify(existingCourses));
+
+    // go back to courses page
+    navigate("/courses");
   };
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Add Course</h2>
+
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Name:</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} required />
+          <label>Course Name:</label>
+          <br />
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </div>
+
+        <br />
+
         <div>
           <label>Credit Units:</label>
-          <input value={creditUnits} onChange={(e) => setCreditUnits(e.target.value)} required />
+          <br />
+          <input
+            type="number"
+            value={creditUnits}
+            onChange={(e) => setCreditUnits(e.target.value)}
+            required
+          />
         </div>
-        <button type="submit">Add</button>
+
+        <br />
+
+        <button type="submit">Add Course</button>
       </form>
     </div>
   );
 }
 
 export default AddCourse;
+
 
 

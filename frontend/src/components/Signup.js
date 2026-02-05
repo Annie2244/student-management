@@ -1,120 +1,87 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AuthService } from "../services/api";
 
-function Signup() {
+function Login() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Frontend validation
-    if (!username || !email.includes("@") || !password || !confirmPassword) {
-      setError("Please fill in all fields correctly.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    // Debug: log what’s being submitted
+    console.log("Submitting login with:", { username, password });
 
-    try {
-      await AuthService.register({
-        username: username.trim(),
-        email: email.trim(),
-        password: password.trim(),
-      });
+    if (username.trim() && password.trim()) {
+      try {
+        const response = await AuthService.login({
+          username: username.trim(),
+          password: password.trim(),
+        });
 
-      alert("Registration successful! Please login.");
-      navigate("/login");
-    } catch (err) {
-      console.error(err);
-      if (err.response?.status === 409) {
-        setError("Username or email already exists.");
-      } else if (err.response?.status === 400) {
-        setError("Invalid input. Please check your details.");
-      } else {
-        setError(err.response?.data?.message || "Registration failed. Please try again.");
+        // Debug: log the full API response
+        console.log("API response:", response);
+
+        if (response.status === 200) {
+          // Save authentication flag and user info
+          localStorage.setItem("isAuthenticated", "true");
+          if (response.data.token) {
+            localStorage.setItem("token", response.data.token);
+          }
+          if (response.data.username) {
+            localStorage.setItem("username", response.data.username);
+          }
+
+          // Debug: confirm successful login
+          console.log("Login successful, redirecting to dashboard...");
+
+          // Redirect to dashboard
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        // Debug: log backend error message
+        console.error("Login failed:", error.response?.data || error.message);
+
+        if (error.response?.status === 401) {
+          alert("Invalid username or password.");
+        } else if (error.response?.status === 404) {
+          alert("User not found.");
+        } else {
+          alert(error.response?.data?.message || "Login failed. Please try again.");
+        }
       }
+    } else {
+      alert("Please enter both username and password");
     }
   };
 
   return (
-    <div className="container">
-      <h2>Create Account</h2>
+    <div className="container" style={{ padding: "40px", textAlign: "center" }}>
+      <h2>Login</h2>
       <form className="vertical-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Username</label>
           <input
-            type="text"
-            placeholder="Enter username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            type="text"
+            placeholder="Enter your username"
           />
         </div>
-
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
         <div className="form-group">
           <label>Password</label>
-          <div style={{ position: "relative" }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <span
-              style={{
-                position: "absolute",
-                right: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                cursor: "pointer",
-                color: "#764ba2",
-                fontWeight: "bold",
-              }}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </span>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Confirm Password</label>
           <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
           />
         </div>
-
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
-
-        <button type="submit" className="submit-btn">Sign Up</button>
+        <button type="submit" className="submit-btn">Login</button>
       </form>
-
-      <p className="form-footer">
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
     </div>
   );
 }
 
-export default Signup;
+export default Login;
