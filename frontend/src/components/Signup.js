@@ -1,87 +1,63 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { AuthService } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
-  const [username, setUsername] = useState("");
+function Signup() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
 
-    // Debug: log what’s being submitted
-    console.log("Submitting login with:", { username, password });
+    const newUser = {
+      name,
+      email,
+      password
+    };
 
-    if (username.trim() && password.trim()) {
-      try {
-        const response = await AuthService.login({
-          username: username.trim(),
-          password: password.trim(),
-        });
+    // save user in localStorage
+    localStorage.setItem("user", JSON.stringify(newUser));
 
-        // Debug: log the full API response
-        console.log("API response:", response);
-
-        if (response.status === 200) {
-          // Save authentication flag and user info
-          localStorage.setItem("isAuthenticated", "true");
-          if (response.data.token) {
-            localStorage.setItem("token", response.data.token);
-          }
-          if (response.data.username) {
-            localStorage.setItem("username", response.data.username);
-          }
-
-          // Debug: confirm successful login
-          console.log("Login successful, redirecting to dashboard...");
-
-          // Redirect to dashboard
-          navigate("/dashboard");
-        }
-      } catch (error) {
-        // Debug: log backend error message
-        console.error("Login failed:", error.response?.data || error.message);
-
-        if (error.response?.status === 401) {
-          alert("Invalid username or password.");
-        } else if (error.response?.status === 404) {
-          alert("User not found.");
-        } else {
-          alert(error.response?.data?.message || "Login failed. Please try again.");
-        }
-      }
-    } else {
-      alert("Please enter both username and password");
-    }
+    // go to login
+    navigate("/login");
   };
 
   return (
-    <div className="container" style={{ padding: "40px", textAlign: "center" }}>
-      <h2>Login</h2>
-      <form className="vertical-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            type="text"
-            placeholder="Enter your username"
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-          />
-        </div>
-        <button type="submit" className="submit-btn">Login</button>
+    <div style={{ padding: "20px" }}>
+      <h2>Sign Up</h2>
+
+      <form onSubmit={handleSignup}>
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        <button type="submit">Sign Up</button>
       </form>
     </div>
   );
 }
 
-export default Login;
+export default Signup;

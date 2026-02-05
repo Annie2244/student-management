@@ -1,84 +1,52 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { AuthService } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
 
-    // Debug: log what’s being submitted
-    console.log("Submitting login with:", { username, password });
+    const savedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (username.trim() && password.trim()) {
-      try {
-        const response = await AuthService.login({
-          username: username.trim(),
-          password: password.trim(),
-        });
-
-        // Debug: log the full API response
-        console.log("API response:", response);
-
-        if (response.status === 200) {
-          // Save authentication flag and user info
-          localStorage.setItem("isAuthenticated", "true");
-          if (response.data.token) {
-            localStorage.setItem("token", response.data.token);
-          }
-          if (response.data.username) {
-            localStorage.setItem("username", response.data.username);
-          }
-
-          // Debug: confirm successful login
-          console.log("Login successful, redirecting to dashboard...");
-
-          // Redirect to dashboard
-          navigate("/dashboard");
-        }
-      } catch (error) {
-        // Debug: log backend error message
-        console.error("Login failed:", error.response?.data || error.message);
-
-        if (error.response?.status === 401) {
-          alert("Invalid username or password.");
-        } else if (error.response?.status === 404) {
-          alert("User not found.");
-        } else {
-          alert(error.response?.data?.message || "Login failed. Please try again.");
-        }
-      }
+    if (
+      savedUser &&
+      email === savedUser.email &&
+      password === savedUser.password
+    ) {
+      localStorage.setItem("isLoggedIn", "true");
+      navigate("/dashboard");
     } else {
-      alert("Please enter both username and password");
+      alert("Invalid email or password");
     }
   };
 
   return (
-    <div className="container" style={{ padding: "40px", textAlign: "center" }}>
+    <div style={{ padding: "20px" }}>
       <h2>Login</h2>
-      <form className="vertical-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            type="text"
-            placeholder="Enter your username"
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-          />
-        </div>
-        <button type="submit" className="submit-btn">Login</button>
+
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <br /><br />
+
+        <button type="submit">Login</button>
       </form>
     </div>
   );
