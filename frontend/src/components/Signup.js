@@ -9,24 +9,24 @@ function Signup() {
   const [error, setError] = useState(""); // to show backend errors
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL; // ✅ use env variable
+
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      // Keep your old backend URL
-      await axios.post("http://localhost:8080/api/signup", {
+      await axios.post(`${API_URL}/api/signup`, {
         name,
         email,
         password,
       });
 
-      // If successful, go to login
+      // redirect on success
       navigate("/login");
     } catch (err) {
-      // Show real backend message if available
       console.error(err.response?.data || err.message);
       setError(
         err.response?.data?.message ||
-        "Failed registration. Please check your details."
+          "Failed registration. Please check your details."
       );
     }
   };
